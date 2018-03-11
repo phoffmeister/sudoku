@@ -33,6 +33,29 @@ class Sudoku(object):
                         for n in self.get_box(int(r/3), int(c/3)):
                             if n in posi[r][c]:
                                 posi[r][c].remove(n)
+            # check every position in every row/col
+            for r in range(9):
+                for i in range(9):
+                    oc_sum = 0
+                    for l in self.get_posi_row(posi, r):
+                        oc_sum += l.count(i)
+                    if oc_sum == 1:
+                        for n in range(9):
+                            if i in posi[r][n]:
+                                posi[r][n] = [i]
+
+            for c in range(9):
+                for i in range(9):
+                    oc_sum = 0
+                    for l in self.get_posi_col(posi, c):
+                        oc_sum += l.count(i)
+                    if oc_sum == 1:
+                        for n in range(9):
+                            if i in posi[n][c]:
+                                posi[n][c] = [i]
+
+
+
             # if a posi has only one element put it in the board
             for r in range(9):
                 for c in range(9):
@@ -44,6 +67,9 @@ class Sudoku(object):
                     print("no solution found after {} iterations.".format(iterations))
                     return posi
         print("done after {} iterations".format(iterations))
+
+    def get_posi_row(self, p, r):
+        return p[r]
 
     def solved(self):
         for r in self.board:
@@ -65,6 +91,12 @@ class Sudoku(object):
     def get_col(self, c):
         col = []
         for r in self.board:
+            col.append(r[c])
+        return col
+
+    def get_posi_col(self, p, c):
+        col = []
+        for r in p:
             col.append(r[c])
         return col
 
