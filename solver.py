@@ -1,24 +1,31 @@
 import json
 import sys
 
+
 class Sudoku(object):
     board = []
 
     def solve(self, max_iterations):
+        # fill up the possible solutions board
+        # each spot in the board gets a list of all possible values assigned
         posi = []
         for i in range(9):
             row = []
             for p in range(9):
-                row.append([1,2,3,4,5,6,7,8,9])
+                row.append([1, 2, 3, 4, 5, 6, 7, 8, 9])
             posi.append(row)
 
+        # in case it is not possible to solve keep track of the numbers of iterations
+        # in order to be able to stop at some point
         iterations = 0
+
         while not self.solved():
             # update posi
             for r in range(9):
                 for c in range(9):
                     if self.board[r][c] != 0:
-                        # this position is already done
+                        # this position is already done if there is already a number in that spot in the box
+                        # set the only possible solution in the possible solution box
                         posi[r][c] = [self.board[r][c]]
                     else:
                         # check same row
@@ -53,8 +60,6 @@ class Sudoku(object):
                         for n in range(9):
                             if i in posi[n][c]:
                                 posi[n][c] = [i]
-
-
 
             # if a posi has only one element put it in the board
             for r in range(9):
@@ -110,7 +115,7 @@ class Sudoku(object):
 
         # check for doubles in rows
         for r in self.board:
-            for n in range(1,10):
+            for n in range(1, 10):
                 if r.count(n) > 1:
                     return False
 
@@ -119,7 +124,7 @@ class Sudoku(object):
         for n in range(9):
             for r in self.board:
                 col.append(r[n])
-            for p in range(1,10):
+            for p in range(1, 10):
                 if col.count(p) > 1:
                     return False
             col = []
@@ -131,7 +136,7 @@ class Sudoku(object):
                 for i in range(3):
                     for j in range(3):
                         box.append(self.board[i+n*3][j+o*3])
-                for p in range(1,10):
+                for p in range(1, 10):
                     if box.count(p) > 1:
                         return False
                 box = []
@@ -165,10 +170,11 @@ class Sudoku(object):
                 out += "----------------------\n"
         return out+"\n"
 
+
 if __name__ == '__main__':
     usage = "usage:\npython solver.py <json file> <max_iterations>\n"
     a = Sudoku()
-    print( "This is your input\n" )
+    print("This is your input\n")
     if len(sys.argv) != 3:
         print(usage)
         exit(0)
@@ -177,7 +183,7 @@ if __name__ == '__main__':
     a.read_json(sys.argv[1])
 
     # print the input board
-    print( a )
+    print(a)
 
     # check if the file is valid
     if a.is_valid():
@@ -185,7 +191,7 @@ if __name__ == '__main__':
     else:
         print("your input is invalid")
 
-    #solve it
+    # solve it
     p = a.solve(int(sys.argv[2]))
 
     if a.is_valid():
@@ -193,5 +199,5 @@ if __name__ == '__main__':
             print(a)
         else:
             for r in p:
-                print (r)
+                print(r)
             print(a)
