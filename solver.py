@@ -87,9 +87,8 @@ class Sudoku(object):
                                 candidate_l.append((row_n, c))
                         # if the list has only one element then put it
                         if len(candidate_l) == 1:
-                            self.board[candidate_l[0][0]][candidate_l[0][1]] = i
-                            print("rows {} at {},{} at #{}".format(i, candidate_l[0][0], candidate_l[0][1], iterations))
-
+                            self.board[candidate_l[0][0]
+                                       ][candidate_l[0][1]] = i
 
             # cols
             for col_n in range(9):
@@ -106,8 +105,8 @@ class Sudoku(object):
                                 candidate_l.append((r, col_n))
                         # if the list has only one element then put it
                         if len(candidate_l) == 1:
-                            self.board[candidate_l[0][0]][candidate_l[0][1]] = i
-                            print("cols {} at {},{} at #{}".format(i, candidate_l[0][0], candidate_l[0][1], iterations))
+                            self.board[candidate_l[0][0]
+                                       ][candidate_l[0][1]] = i
 
             # boxes
             for box_n_x in range(9):
@@ -120,15 +119,14 @@ class Sudoku(object):
                         if i not in box:
                             candidate_l = []
                             # check for every row and col if it is possible to put the number there. if so put it in a list
-                            for bb_x in range(int(box_n_x/3), int(box_n_x/3)+3):
-                                for bb_y in range(int(box_n_y/3), int(box_n_y/3)+3):
+                            for bb_x in range(int(box_n_x/3)*3, int(box_n_x/3)*3+3):
+                                for bb_y in range(int(box_n_y/3)*3, int(box_n_y/3)*3+3):
                                     if self.board[bb_x][bb_y] == 0 and i not in self.get_row(bb_x) and i not in self.get_col(bb_y):
                                         candidate_l.append((bb_x, bb_y))
                             # if the list has only one element then put it
                             if len(candidate_l) == 1:
-                                self.board[candidate_l[0][0]][candidate_l[0][1]] = i
-                                print("box {} at {},{} at #{} box_n_x:{} box_n_y:{} box:{}".format(i, candidate_l[0][0], candidate_l[0][1], iterations, int(box_n_x/3), int(box_n_y/3), self.get_box(int(box_n_x/3), int(box_n_y/3))))
-                                print("bb_x:{} bb_y:{}".format(bb_x, bb_y))
+                                self.board[candidate_l[0][0]
+                                           ][candidate_l[0][1]] = i
 
             # if a posi has only one element put it in the board
             for r in range(9):
