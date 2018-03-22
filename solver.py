@@ -20,6 +20,12 @@ class Sudoku(object):
         iterations = 0
 
         while not self.solved():
+            if not self.is_valid():
+                print("invalid")
+                return posi
+            # keep track if something has changed
+            changed = 0
+
             # update posi
             for r in range(9):
                 for c in range(9):
@@ -32,14 +38,18 @@ class Sudoku(object):
                         for n in self.get_row(r):
                             if n in posi[r][c]:
                                 posi[r][c].remove(n)
+                                changed = 1
                         # check same col
                         for n in self.get_col(c):
                             if n in posi[r][c]:
                                 posi[r][c].remove(n)
+                                changed = 1
                         # check same box
                         for n in self.get_box(int(r/3), int(c/3)):
                             if n in posi[r][c]:
                                 posi[r][c].remove(n)
+                                changed = 1
+
             # check every position in every row/col
             for r in range(9):
                 for i in range(9):
@@ -61,16 +71,80 @@ class Sudoku(object):
                             if i in posi[n][c]:
                                 posi[n][c] = [i]
 
+            # go through all rows/cols/boxes
+            # rows
+            for row_n in range(9):
+                row = self.get_row(row_n)
+
+                # check every possible number for that row
+                for i in range(9):
+                    # if that number is not already in that row
+                    if i not in row:
+                        candidate_l = []
+                        # check for every column if it is possible to put the number there and put it in a list
+                        for c in range(9):
+                            if (self.board[row_n][c] == 0) and (i not in self.get_col(c)) and (i not in self.get_box(int(row_n/3), int(c/3))):
+                                candidate_l.append((row_n, c))
+                        # if the list has only one element then put it
+                        if len(candidate_l) == 1:
+                            self.board[candidate_l[0][0]][candidate_l[0][1]] = i
+                            print("rows {} at {},{} at #{}".format(i, candidate_l[0][0], candidate_l[0][1], iterations))
+
+
+            # cols
+            for col_n in range(9):
+                col = self.get_col(col_n)
+
+                # check every possible number for that col
+                for i in range(9):
+                    # if that number is not already in that row
+                    if i not in col:
+                        candidate_l = []
+                        # check for every row if it is possible to put the number there and if so put it in a list
+                        for r in range(9):
+                            if (self.board[r][col_n] == 0) and (i not in self.get_row(r)) and (i not in self.get_box(int(r/3), int(col_n/3))):
+                                candidate_l.append((r, col_n))
+                        # if the list has only one element then put it
+                        if len(candidate_l) == 1:
+                            self.board[candidate_l[0][0]][candidate_l[0][1]] = i
+                            print("cols {} at {},{} at #{}".format(i, candidate_l[0][0], candidate_l[0][1], iterations))
+
+            # boxes
+            for box_n_x in range(9):
+                for box_n_y in range(9):
+                    box = self.get_box(int(box_n_x/3), int(box_n_y/3))
+
+                    # check every possible number for that box
+                    for i in range(9):
+                        # if that number is not already in that box
+                        if i not in box:
+                            candidate_l = []
+                            # check for every row and col if it is possible to put the number there. if so put it in a list
+                            for bb_x in range(int(box_n_x/3), int(box_n_x/3)+3):
+                                for bb_y in range(int(box_n_y/3), int(box_n_y/3)+3):
+                                    if self.board[bb_x][bb_y] == 0 and i not in self.get_row(bb_x) and i not in self.get_col(bb_y):
+                                        candidate_l.append((bb_x, bb_y))
+                            # if the list has only one element then put it
+                            if len(candidate_l) == 1:
+                                self.board[candidate_l[0][0]][candidate_l[0][1]] = i
+                                print("box {} at {},{} at #{} box_n_x:{} box_n_y:{} box:{}".format(i, candidate_l[0][0], candidate_l[0][1], iterations, int(box_n_x/3), int(box_n_y/3), self.get_box(int(box_n_x/3), int(box_n_y/3))))
+                                print("bb_x:{} bb_y:{}".format(bb_x, bb_y))
+
             # if a posi has only one element put it in the board
             for r in range(9):
                 for c in range(9):
-                    if len(posi[r][c]) == 1:
+                    if len(posi[r][c]) == 1 and self.board[r][c] == 0:
                         self.board[r][c] = posi[r][c][0]
+                        changed = 1
             iterations += 1
             if max_iterations != 0:
                 if iterations >= max_iterations:
                     print("no solution found after {} iterations.".format(iterations))
                     return posi
+
+            if changed == 0:
+                print("no more changes after {} iterations.".format(iterations))
+                return posi
         print("done after {} iterations".format(iterations))
 
     def get_posi_row(self, p, r):
@@ -108,15 +182,16 @@ class Sudoku(object):
     def is_valid(self):
         # check boad size
         if len(self.board) != 9:
-            return false
+            return False
         for r in self.board:
             if len(r) != 9:
-                return false
+                return False
 
         # check for doubles in rows
         for r in self.board:
             for n in range(1, 10):
                 if r.count(n) > 1:
+                    print("multible {} in row {}".format(n, r))
                     return False
 
         # check for doubles in cols
@@ -126,6 +201,7 @@ class Sudoku(object):
                 col.append(r[n])
             for p in range(1, 10):
                 if col.count(p) > 1:
+                    print("multible {} in col {}".format(p, col))
                     return False
             col = []
 
@@ -138,6 +214,7 @@ class Sudoku(object):
                         box.append(self.board[i+n*3][j+o*3])
                 for p in range(1, 10):
                     if box.count(p) > 1:
+                        print("multible {} in box {}".format(p, box))
                         return False
                 box = []
 
@@ -201,3 +278,6 @@ if __name__ == '__main__':
             for r in p:
                 print(r)
             print(a)
+    else:
+        print("invalid")
+        print(a)
