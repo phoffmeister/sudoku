@@ -77,7 +77,7 @@ class Sudoku(object):
                 row = self.get_row(row_n)
 
                 # check every possible number for that row
-                for i in range(9):
+                for i in range(1,10):
                     # if that number is not already in that row
                     if i not in row:
                         candidate_l = []
@@ -87,15 +87,14 @@ class Sudoku(object):
                                 candidate_l.append((row_n, c))
                         # if the list has only one element then put it
                         if len(candidate_l) == 1:
-                            self.board[candidate_l[0][0]
-                                       ][candidate_l[0][1]] = i
+                            self.board[candidate_l[0][0]][candidate_l[0][1]] = i
 
             # cols
             for col_n in range(9):
                 col = self.get_col(col_n)
 
                 # check every possible number for that col
-                for i in range(9):
+                for i in range(1,10):
                     # if that number is not already in that row
                     if i not in col:
                         candidate_l = []
@@ -114,7 +113,7 @@ class Sudoku(object):
                     box = self.get_box(int(box_n_x/3), int(box_n_y/3))
 
                     # check every possible number for that box
-                    for i in range(9):
+                    for i in range(1,10):
                         # if that number is not already in that box
                         if i not in box:
                             candidate_l = []
