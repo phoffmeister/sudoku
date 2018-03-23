@@ -1,5 +1,6 @@
 import json
 import sys
+import copy
 
 
 class Sudoku(object):
@@ -18,6 +19,7 @@ class Sudoku(object):
         # in case it is not possible to solve keep track of the numbers of iterations
         # in order to be able to stop at some point
         iterations = 0
+        bruteforce = 0
 
         while not self.solved():
             if not self.is_valid():
@@ -71,7 +73,7 @@ class Sudoku(object):
                             if i in posi[n][c]:
                                 posi[n][c] = [i]
 
-            # go through all rows/cols/boxes
+            # go through all rows/cols/boxes "versteckter einer"
             # rows
             for row_n in range(9):
                 row = self.get_row(row_n)
@@ -128,6 +130,23 @@ class Sudoku(object):
                                 self.board[candidate_l[0][0]
                                            ][candidate_l[0][1]] = i
 
+            # methode: "nackter einer"
+            for r in range(9):
+                for c in range(9):
+                    if self.board[r][c] == 0:
+                        candidate_l = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                        for i in self.get_row(r):
+                            if i in candidate_l:
+                                candidate_l.remove(i)
+                        for i in self.get_col(c):
+                            if i in candidate_l:
+                                candidate_l.remove(i)
+                        for i in self.get_box(int(r/3), int(c/3)):
+                            if i in candidate_l:
+                                candidate_l.remove(i)
+                        if len(candidate_l) == 1:
+                            self.board[r][c] = candidate_l[0]
+
             # if a posi has only one element put it in the board
             for r in range(9):
                 for c in range(9):
@@ -142,8 +161,37 @@ class Sudoku(object):
 
             if changed == 0:
                 print("no more changes after {} iterations.".format(iterations))
-                return posi
-        print("done after {} iterations".format(iterations))
+                print("strating bruteforce")
+                self.bruteforceme(posi)
+                bruteforce = 1
+
+        if bruteforce == 1:
+            return
+        else:
+            print("done after {} iterations".format(iterations))
+            return
+
+    def bruteforceme(self, poses):
+        # get the position with the minimum amount of possible numbers
+        candidate = []
+        minimum = 10
+        for r in range(9):
+            for c in range(9):
+                if len(poses[r][c]) < minimum and len(poses[r][c]) > 1:
+                    minimum = len(poses[r][c])
+                    candidate = [r, c]
+
+        print("len(poses):{}".format(len(poses[candidate[0]][candidate[1]])))
+
+        print("candidate:{}".format(candidate))
+        for i in range(len(poses[candidate[0]][candidate[1]])):
+            cp = copy.deepcopy(self)
+            cp.board[candidate[0]][candidate[1]
+                                   ] = poses[candidate[0]][candidate[1]][i]
+            cp.solve(10)
+            if cp.is_valid():
+                self.board = cp.board
+                return
 
     def get_posi_row(self, p, r):
         return p[r]
