@@ -5,8 +5,11 @@ import copy
 
 class Sudoku(object):
     board = []
+    depth = 0
 
-    def solve(self, max_iterations):
+    def solve(self, max_iterations=100):
+        self.depth += 1
+        print("depth: {}".format(self.depth))
         # fill up the possible solutions board
         # each spot in the board gets a list of all possible values assigned
         posi = []
@@ -23,14 +26,16 @@ class Sudoku(object):
 
         while not self.solved():
             if not self.is_valid():
-                print("invalid")
-                return posi
+                return
             # keep track if something has changed
             changed = 0
 
             # update posi
             for r in range(9):
                 for c in range(9):
+                    if len(posi[r][c]) == 0:
+                        # print("wrong posi")
+                        return
                     if self.board[r][c] != 0:
                         # this position is already done if there is already a number in that spot in the box
                         # set the only possible solution in the possible solution box
@@ -89,8 +94,8 @@ class Sudoku(object):
                                 candidate_l.append((row_n, c))
                         # if the list has only one element then put it
                         if len(candidate_l) == 1:
-                            self.board[candidate_l[0][0]
-                                       ][candidate_l[0][1]] = i
+                            self.board[candidate_l[0][0] ][candidate_l[0][1]] = i
+                            changed = 1
 
             # cols
             for col_n in range(9):
@@ -107,8 +112,8 @@ class Sudoku(object):
                                 candidate_l.append((r, col_n))
                         # if the list has only one element then put it
                         if len(candidate_l) == 1:
-                            self.board[candidate_l[0][0]
-                                       ][candidate_l[0][1]] = i
+                            self.board[candidate_l[0][0] ][candidate_l[0][1]] = i
+                            changed = 1
 
             # boxes
             for box_n_x in range(9):
@@ -127,8 +132,8 @@ class Sudoku(object):
                                         candidate_l.append((bb_x, bb_y))
                             # if the list has only one element then put it
                             if len(candidate_l) == 1:
-                                self.board[candidate_l[0][0]
-                                           ][candidate_l[0][1]] = i
+                                self.board[candidate_l[0][0]][candidate_l[0][1]] = i
+                                changed = 1
 
             # methode: "nackter einer"
             for r in range(9):
@@ -146,6 +151,7 @@ class Sudoku(object):
                                 candidate_l.remove(i)
                         if len(candidate_l) == 1:
                             self.board[r][c] = candidate_l[0]
+                            changed = 1
 
             # if a posi has only one element put it in the board
             for r in range(9):
@@ -157,13 +163,14 @@ class Sudoku(object):
             if max_iterations != 0:
                 if iterations >= max_iterations:
                     print("no solution found after {} iterations.".format(iterations))
-                    return posi
+                    return
 
             if changed == 0:
                 print("no more changes after {} iterations.".format(iterations))
                 print("strating bruteforce")
                 self.bruteforceme(posi)
                 bruteforce = 1
+                return
 
         if bruteforce == 1:
             return
@@ -172,26 +179,26 @@ class Sudoku(object):
             return
 
     def bruteforceme(self, poses):
-        # get the position with the minimum amount of possible numbers
-        candidate = []
-        minimum = 10
-        for r in range(9):
-            for c in range(9):
-                if len(poses[r][c]) < minimum and len(poses[r][c]) > 1:
-                    minimum = len(poses[r][c])
-                    candidate = [r, c]
+        # create a list in which order numbers should be guessed
+        guess_order = []
 
-        print("len(poses):{}".format(len(poses[candidate[0]][candidate[1]])))
+        for n in range(2,10):
+            candidate = []
+            minimum = 10
+            for r in range(9):
+                for c in range(9):
+                    if len(poses[r][c]) == n:
+                        guess_order.append([r,c])
 
-        print("candidate:{}".format(candidate))
-        for i in range(len(poses[candidate[0]][candidate[1]])):
-            cp = copy.deepcopy(self)
-            cp.board[candidate[0]][candidate[1]
-                                   ] = poses[candidate[0]][candidate[1]][i]
-            cp.solve(10)
-            if cp.is_valid():
-                self.board = cp.board
-                return
+        for pos in guess_order:
+            for i in range(len(poses[pos[0]][pos[1]])):
+                cp = copy.deepcopy(self)
+                print("guessing {} at {}".format(poses[pos[0]][pos[1]][i], pos))
+                cp.board[pos[0]][pos[1]] = poses[pos[0]][pos[1]][i]
+                cp.solve()
+                if cp.is_valid() and cp.solved():
+                    self.board = cp.board
+                    return
 
     def get_posi_row(self, p, r):
         return p[r]
@@ -237,7 +244,7 @@ class Sudoku(object):
         for r in self.board:
             for n in range(1, 10):
                 if r.count(n) > 1:
-                    print("multible {} in row {}".format(n, r))
+                    # print("multible {} in row {}".format(n, r))
                     return False
 
         # check for doubles in cols
@@ -247,7 +254,7 @@ class Sudoku(object):
                 col.append(r[n])
             for p in range(1, 10):
                 if col.count(p) > 1:
-                    print("multible {} in col {}".format(p, col))
+                    # print("multible {} in col {}".format(p, col))
                     return False
             col = []
 
@@ -260,7 +267,7 @@ class Sudoku(object):
                         box.append(self.board[i+n*3][j+o*3])
                 for p in range(1, 10):
                     if box.count(p) > 1:
-                        print("multible {} in box {}".format(p, box))
+                        # print("multible {} in box {}".format(p, box))
                         return False
                 box = []
 
@@ -321,8 +328,7 @@ if __name__ == '__main__':
         if a.solved():
             print(a)
         else:
-            for r in p:
-                print(r)
+            print("invalid")
             print(a)
     else:
         print("invalid")
