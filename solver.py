@@ -7,9 +7,13 @@ class Sudoku(object):
     board = []
     depth = 0
 
-    def solve(self, max_iterations=100):
+    def solve(self, max_iterations=100, max_depth=3):
         self.depth += 1
-        print("depth: {}".format(self.depth))
+        # limit the recursion depth a bit
+        if self.depth > max_depth:
+            return
+        # sys.stdout.write("depth: {}\r".format(self.depth))
+        # sys.stdout.flush()
         # fill up the possible solutions board
         # each spot in the board gets a list of all possible values assigned
         posi = []
@@ -162,12 +166,14 @@ class Sudoku(object):
             iterations += 1
             if max_iterations != 0:
                 if iterations >= max_iterations:
-                    print("no solution found after {} iterations.".format(iterations))
+                    # sys.stdout.write("no solution found after {} iterations.\r".format(iterations))
+                    # sys.stdout.flush()
                     return
 
             if changed == 0:
-                print("no more changes after {} iterations.".format(iterations))
-                print("strating bruteforce")
+                # sys.stdout.write("no more changes after {} iterations.\r".format(iterations))
+                # sys.stdout.flush()
+                # print("strating bruteforce")
                 self.bruteforceme(posi)
                 bruteforce = 1
                 return
@@ -175,7 +181,8 @@ class Sudoku(object):
         if bruteforce == 1:
             return
         else:
-            print("done after {} iterations".format(iterations))
+            # sys.stdout.write("done after {} iterations\r".format(iterations))
+            # sys.stdout.flush()
             return
 
     def bruteforceme(self, poses):
@@ -193,7 +200,8 @@ class Sudoku(object):
         for pos in guess_order:
             for i in range(len(poses[pos[0]][pos[1]])):
                 cp = copy.deepcopy(self)
-                print("guessing {} at {}".format(poses[pos[0]][pos[1]][i], pos))
+                sys.stdout.write("guessing {} at {}\r".format(poses[pos[0]][pos[1]][i], pos))
+                sys.stdout.flush()
                 cp.board[pos[0]][pos[1]] = poses[pos[0]][pos[1]][i]
                 cp.solve()
                 if cp.is_valid() and cp.solved():
@@ -302,10 +310,10 @@ class Sudoku(object):
 
 
 if __name__ == '__main__':
-    usage = "usage:\npython solver.py <json file> <max_iterations>\n"
+    usage = "usage:\npython solver.py <json file>\n"
     a = Sudoku()
     print("This is your input\n")
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 2:
         print(usage)
         exit(0)
 
@@ -322,7 +330,8 @@ if __name__ == '__main__':
         print("your input is invalid")
 
     # solve it
-    p = a.solve(int(sys.argv[2]))
+    p = a.solve()
+    print("")
 
     if a.is_valid():
         if a.solved():
